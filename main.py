@@ -15,14 +15,21 @@ async def main():
 
         page = await browser.new_page()
         await page.goto(START_URL)
+
+        await page.wait_for_selector("table tbody tr", timeout=15000)
+        await page.wait_for_timeout(3000)
+        await save_page_html(page, "coinmarketcap.html")
         links = collect_token_links_from_file(
             "saved_pages/coinmarketcap.html"
         )
 
-        for link in links:
-            print(link)
+        for index, link in enumerate(links, start=1):
+            print(f'Open {index}: {link}')
 
-        await save_page_html(page, "coinmarketcap.html")
+            await page.goto(link, wait_until='domcontentloaded')
+            filename = f'coin{index}.html'
+            await save_page_html(page, filename)
+
         input("press enter to close")
         await browser.close()
 
