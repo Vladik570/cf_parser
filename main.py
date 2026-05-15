@@ -27,13 +27,13 @@ async def main():
             print(f'Open {index}: {link}')
 
             await page.goto(link, wait_until='domcontentloaded')
-            filename = f'coin{index}.html'
+            filename = f"saved_pages/coin{index}.html"
             await save_page_html(page, filename)
 
-        info = collect_token_info("saved_pages/coin1.html")
+            info = collect_token_info(filename)
 
-        print(info["name"])
-        print(info["ticker"])
+            print(info["name"])
+            print(info["ticker"])
 
         input("press enter to close")
         await browser.close()
