@@ -61,3 +61,12 @@ def get_name_and_ticker(soup) -> tuple[str | None, str | None]:
                 break
 
     return name, ticker
+
+def get_socials(soup) -> list[str]:
+    links_block = soup.select_one('[data-test="coin-info-links"]')
+
+    if not links_block:
+        return []
+
+    all_links = [a["href"] for a in links_block.select("a[href]")]
+    return all_links
