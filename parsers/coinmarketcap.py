@@ -31,3 +31,29 @@ def collect_token_links_from_file(file_path: str) -> list[str]:
 
 
     return links
+
+def collect_token_info(file_path: str) -> dict:
+    html = Path(file_path).read_text(encoding="utf-8")
+    soup = BeautifulSoup(html, "html.parser")
+
+    name = None
+    ticker = None
+
+    name_tag = soup.select_one('[data-role="coin-name"]')
+    if name_tag:
+        name = name_tag.get_text(strip=True)
+
+    h1 = soup.find("h1")
+    if h1:
+        parts = list(h1.stripped_strings)
+
+        if not name and parts:
+            name = parts[0]
+
+        if len(parts) > 1:
+            ticker = parts[1]
+
+    return {
+        "name": name,
+        "ticker": ticker,
+    }

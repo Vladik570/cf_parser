@@ -2,7 +2,7 @@ from playwright.async_api import async_playwright
 import asyncio
 from config import START_URL
 from utils.html_saver import save_page_html
-from parsers.coinmarketcap import collect_token_links_from_file
+from parsers.coinmarketcap import collect_token_links_from_file, collect_token_info
 
 
 async def main():
@@ -29,6 +29,11 @@ async def main():
             await page.goto(link, wait_until='domcontentloaded')
             filename = f'coin{index}.html'
             await save_page_html(page, filename)
+
+        info = collect_token_info("saved_pages/coin1.html")
+
+        print(info["name"])
+        print(info["ticker"])
 
         input("press enter to close")
         await browser.close()
