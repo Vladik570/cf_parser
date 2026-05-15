@@ -55,7 +55,7 @@ def get_name_and_ticker(soup) -> tuple[str | None, str | None]:
         if parts:
             name = parts[0]
 
-        for part in parts:
+        for part in parts[1:]:
             if re.fullmatch(r"[A-Z0-9]{2,15}", part):
                 ticker = part
                 break

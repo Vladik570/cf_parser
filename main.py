@@ -27,10 +27,10 @@ async def main():
             print(f'Open {index}: {link}')
 
             await page.goto(link, wait_until='domcontentloaded')
-            filename = f"saved_pages/coin{index}.html"
-            await save_page_html(page, filename)
+            filename = f"coin{index}.html"
 
-            info = collect_token_info(filename)
+            await save_page_html(page, filename)
+            info = collect_token_info(f"saved_pages/{filename}")
 
             print(info["name"])
             print(info["ticker"])
