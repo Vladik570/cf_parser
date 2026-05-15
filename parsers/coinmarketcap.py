@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from pathlib import Path
+import re
 
 def collect_token_links_from_file(file_path: str) -> list[str]:
     html = Path(file_path).read_text(encoding="utf-8")
@@ -36,24 +37,27 @@ def collect_token_info(file_path: str) -> dict:
     html = Path(file_path).read_text(encoding="utf-8")
     soup = BeautifulSoup(html, "html.parser")
 
-    name = None
-    ticker = None
-
-    name_tag = soup.select_one('[data-role="coin-name"]')
-    if name_tag:
-        name = name_tag.get_text(strip=True)
-
-    h1 = soup.find("h1")
-    if h1:
-        parts = list(h1.stripped_strings)
-
-        if not name and parts:
-            name = parts[0]
-
-        if len(parts) > 1:
-            ticker = parts[1]
-
+    name, ticker = get_name_and_ticker(soup)
     return {
         "name": name,
         "ticker": ticker,
     }
+
+def get_name_and_ticker(soup) -> tuple[str | None, str | None]:
+    name = None
+    ticker = None
+
+    h1 = soup.find("h1")
+
+    if h1:
+        parts = list(h1.stripped_strings)
+
+        if parts:
+            name = parts[0]
+
+        for part in parts:
+            if re.fullmatch(r"[A-Z0-9]{2,15}", part):
+                ticker = part
+                break
+
+    return name, ticker
