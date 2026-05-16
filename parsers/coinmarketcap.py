@@ -35,12 +35,16 @@ def collect_token_links_from_file(file_path: str) -> list[str]:
 
 def collect_token_info(file_path: str) -> dict:
     html = Path(file_path).read_text(encoding="utf-8")
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
 
     name, ticker = get_name_and_ticker(soup)
+    socials = get_socials(soup)
+    website = get_website(soup)
     return {
         "name": name,
         "ticker": ticker,
+        "socials": socials,
+        "website": website,
     }
 
 def get_name_and_ticker(soup) -> tuple[str | None, str | None]:
@@ -62,11 +66,40 @@ def get_name_and_ticker(soup) -> tuple[str | None, str | None]:
 
     return name, ticker
 
-def get_socials(soup) -> list[str]:
-    links_block = soup.select_one('[data-test="coin-info-links"]')
 
-    if not links_block:
+def get_website(soup) -> str | None:
+    web_tag = soup.select_one('a[data-test="chip-website-link"]')
+
+    if web_tag and web_tag.get("href"):
+        url = web_tag["href"]
+        if url.startswith("//"):
+            url = "https:" + url
+        return url
+
+    return None
+
+def get_socials(soup) -> list[str]:
+    block = soup.select_one('div[class*="CoinInfoLinks"]')
+    if not block:
         return []
 
-    all_links = [a["href"] for a in links_block.select("a[href]")]
-    return all_links
+    socials_domains = (
+        "twitter.com",
+        "x.com",
+        "t.me",
+        "telegram",
+        "discord",
+        "github.com",
+        "medium.com",
+        "facebook.com",
+        "instagram.com",
+    )
+
+    links = []
+    for a in block.select("a[href]"):
+        href = a.get("href", "")
+
+        if any(domain in href for domain in socials_domains):
+            links.append(href)
+
+    return list(set(links))
