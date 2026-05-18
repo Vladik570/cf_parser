@@ -34,6 +34,8 @@ async def main():
 
             print(info["name"])
             print(info["ticker"])
+            print(info["website"])
+            print(info["socials"])
 
         input("press enter to close")
         await browser.close()
